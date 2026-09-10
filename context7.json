@@ -1,0 +1,6 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Intersection.js",
+  "description": "Two-dimensional intersections and bounds for line segments, circles, ellipses, arcs, and Bezier curves.",
+  "excludeFolders": ["dist", "node_modules", "coverage", "_"]
+}

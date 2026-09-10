@@ -56,6 +56,33 @@ describe('circleCircle', () => {
     expect(circleCircle(unit, unit)).toEqual([]);
   });
 
+  it('rejects a false tangency between nearly concentric nested circles', () => {
+    expect(circleCircle(unit, { x: 1e-16, y: 0, r: 1 + 1e-13 })).toEqual([]);
+  });
+
+  it('preserves two crossings for nearly concentric circles of equal size', () => {
+    const hits = circleCircle(unit, { x: 1e-16, y: 0, r: 1 });
+
+    expect(hits).toHaveLength(2);
+    expect(hits[0]!.x).toBeCloseTo(5e-17, 25);
+    expect(Math.abs(hits[0]!.y)).toBeCloseTo(1, 12);
+  });
+
+  it.each([1e-200, 1e200])('avoids square overflow or underflow at scale %g', (scale) => {
+    const hits = circleCircle(
+      { x: 0, y: 0, r: scale },
+      { x: scale, y: 0, r: scale },
+    );
+
+    expect(hits).toHaveLength(2);
+    for (const hit of hits) {
+      expect(Number.isFinite(hit.x)).toBe(true);
+      expect(Number.isFinite(hit.y)).toBe(true);
+      expect(hit.x / scale).toBeCloseTo(0.5, 12);
+      expect(Math.abs(hit.y / scale)).toBeCloseTo(Math.sqrt(3) / 2, 12);
+    }
+  });
+
   it('finds nothing for a degenerate radius', () => {
     expect(circleCircle(unit, { x: 1, y: 0, r: 0 })).toEqual([]);
     expect(circleCircle({ x: 0, y: 0, r: -1 }, { x: 1, y: 0, r: 1 })).toEqual([]);

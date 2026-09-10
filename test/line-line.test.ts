@@ -110,4 +110,24 @@ describe('isParallel and isCollinear', () => {
     expect(isParallel(a1, b1, { x: 0, y: 0 }, { x: 5, y: 5 })).toBe(false);
     expect(isCollinear(a1, b1, { x: 0, y: 0 }, { x: 5, y: 5 })).toBe(false);
   });
+
+  it('handles a degenerate segment symmetrically', () => {
+    const pointA = { x: 0, y: 1 };
+    const pointB = { x: 0, y: 1 };
+    const lineA = { x: 10, y: 10 };
+    const lineB = { x: 20, y: 20 };
+
+    expect(isCollinear(pointA, pointB, lineA, lineB)).toBe(false);
+    expect(isCollinear(lineA, lineB, pointA, pointB)).toBe(false);
+    expect(isCollinear(pointA, pointB, lineA, lineA)).toBe(true);
+  });
+
+  it('rejects non-finite predicate inputs', () => {
+    const invalid = { x: Number.NaN, y: 0 };
+    const a = { x: 0, y: 0 };
+    const b = { x: 1, y: 0 };
+
+    expect(isParallel(invalid, b, a, b)).toBe(false);
+    expect(isCollinear(invalid, b, a, b)).toBe(false);
+  });
 });

@@ -1,12 +1,12 @@
 {
   "name": "intersection",
-  "version": "0.1.0",
-  "description": "The RAW geometric intersection algorithms library",
+  "version": "0.1.1",
+  "description": "2D intersections and bounds for line segments, circles, ellipses, arcs, and Bezier curves",
   "private": false,
   "keywords": [
     "intersection",
     "geometry",
-    "line intersection",
+    "line-intersection",
     "bezier",
     "ellipse",
     "circle",

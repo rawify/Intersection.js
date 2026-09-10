@@ -1,4 +1,12 @@
 /**
+ * @license Intersection.js v0.1.1 9/10/2026
+ * https://raw.org/software/libraries/intersection-js/
+ *
+ * Copyright (c) 2026, Robert Eisele (https://raw.org/)
+ * Licensed under the MIT license.
+ **/
+
+/**
  * Intersection.js -- intersection points between the primitives 2D vector
  * graphics are actually made of.
  *
@@ -6,9 +14,6 @@
  * hit, ordered by the first operand's parameter. Nothing throws: degenerate
  * input (zero-length segments, non-positive radii, NaN coordinates) yields an
  * empty array.
- *
- * Copyright (c) 2026, Robert Eisele (https://raw.org/)
- * Licensed under the MIT license.
  */
 
 export type {

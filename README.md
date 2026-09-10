@@ -9,6 +9,8 @@ a fixed epsilon to fail. *Intersection.js* handles these cases for the
 primitives used in 2D vector graphics: line segments, circles, ellipses,
 elliptical arcs, and Bezier curves.
 
+The package name is [`intersection`](https://www.npmjs.com/package/intersection). Use it when exact primitive pairs, curve parameters, tangencies, or analytic bounds are needed. Use a spatial index before it when many unrelated shapes need broad-phase filtering, and use polygon clipping or a geometry engine when overlapping areas rather than discrete intersection points are required.
+
 A line-segment intersection can be calculated as follows:
 
 ```javascript
@@ -35,6 +37,8 @@ points as the pair of shapes permits. Invalid or degenerate geometry also
 returns `[]` instead of throwing an exception.
 
 ## Examples / Motivation
+
+The examples below are task-oriented recipes with complete imports and observable results. All angles are in radians, all shapes use plain structural objects, and inputs are not mutated.
 
 ### Intersect a line segment and a circle
 
@@ -293,7 +297,9 @@ therefore returned once rather than as two coincident points.
 
 Returns at most one intersection between two line segments. Parallel,
 collinear, overlapping, and zero-length segments return `[]`. Use
-`isParallel()` or `isCollinear()` when the distinction matters.
+`isParallel()` or `isCollinear()` when the distinction matters. For
+`isCollinear()`, a zero-length segment is treated as a point on the other
+segment's supporting line; two point segments are considered collinear.
 
 ### lineCircle(a, b, circle)
 
@@ -437,6 +443,8 @@ Or in a CommonJS project:
 ```javascript
 const { lineLine, circleCircle, bezierEllipse } = require('intersection');
 ```
+
+The package supports Node.js 18 or newer and ships ESM, CommonJS, source maps, and TypeScript declarations. It has no runtime dependencies and does not publish a browser-global bundle; browser projects should use the ESM entry through a bundler or native module loading.
 
 All public TypeScript types are exported from the package:
 

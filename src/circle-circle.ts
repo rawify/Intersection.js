@@ -22,35 +22,51 @@ export function circleCircle(first: Circle, second: Circle): Intersection[] {
   const dx = second.x - first.x;
   const dy = second.y - first.y;
   const distance = Math.hypot(dx, dy);
-  if (distance === 0) return [];
+  if (distance === 0 || !Number.isFinite(distance)) return [];
 
-  const sum = first.r + second.r;
-  const difference = Math.abs(first.r - second.r);
-  const tolerance = EPS * Math.max(distance, sum);
+  // Normalize all lengths before squaring. This avoids overflow for radii near
+  // Number.MAX_VALUE and underflow for subnormal-scale geometry.
+  const scale = Math.max(distance, first.r, second.r);
+  const normalizedDistance = distance / scale;
+  const firstRadius = first.r / scale;
+  const secondRadius = second.r / scale;
+  const sum = firstRadius + secondRadius;
+  const difference = Math.abs(firstRadius - secondRadius);
+  const tolerance = EPS * Math.max(normalizedDistance, sum);
 
   // Too far apart, or one nested inside the other without touching.
-  if (distance > sum + tolerance || distance < difference - tolerance) return [];
+  if (normalizedDistance > sum + tolerance || normalizedDistance < difference - tolerance) {
+    return [];
+  }
 
   const ex = dx / distance;
   const ey = dy / distance;
 
   // Distance from `first`'s center to the radical line, along the center line.
-  const along = (first.r * first.r - second.r * second.r + distance * distance) / (2 * distance);
-  const heightSquared = first.r * first.r - along * along;
-  const height = heightSquared <= 0 ? 0 : Math.sqrt(heightSquared);
+  const along = ((firstRadius - secondRadius) * sum
+    + normalizedDistance * normalizedDistance) / (2 * normalizedDistance);
+  const heightSquared = firstRadius * firstRadius - along * along;
+  if (heightSquared < -EPS * Math.max(1, firstRadius * firstRadius, along * along)) return [];
+
+  const height = Math.sqrt(Math.max(0, heightSquared));
 
   const results: Intersection[] = [];
   for (const sign of [-1, 1]) {
+    const offsetX = along * ex - sign * height * ey;
+    const offsetY = along * ey + sign * height * ex;
     const p = {
-      x: first.x + along * ex - sign * height * ey,
-      y: first.y + along * ey + sign * height * ex,
+      x: first.x + scale * offsetX,
+      y: first.y + scale * offsetY,
     };
     results.push(intersection(
       p,
-      normalizeAngle(Math.atan2(p.y - first.y, p.x - first.x)),
-      normalizeAngle(Math.atan2(p.y - second.y, p.x - second.x)),
+      normalizeAngle(Math.atan2(offsetY, offsetX)),
+      normalizeAngle(Math.atan2(
+        offsetY - normalizedDistance * ey,
+        offsetX - normalizedDistance * ex,
+      )),
     ));
   }
   // Tangency produces the same point twice; `finalize` folds it.
-  return finalize(results);
+  return finalize(results, EPS * scale);
 }

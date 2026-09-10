@@ -44,6 +44,10 @@ export function lineLine(a1: Point, b1: Point, a2: Point, b2: Point): Intersecti
 
 /** The two segments run in parallel (or one of them is degenerate). */
 export function isParallel(a1: Point, b1: Point, a2: Point, b2: Point): boolean {
+  if (!isFinitePoint(a1) || !isFinitePoint(b1) || !isFinitePoint(a2) || !isFinitePoint(b2)) {
+    return false;
+  }
+
   const ux = b1.x - a1.x;
   const uy = b1.y - a1.y;
   const vx = b2.x - a2.x;
@@ -53,15 +57,34 @@ export function isParallel(a1: Point, b1: Point, a2: Point, b2: Point): boolean 
   return Math.abs(ux * vy - uy * vx) <= EPS * magnitude;
 }
 
-/** The two segments are parallel *and* lie on one common line. */
+/**
+ * The two segments lie on one common line.
+ *
+ * A point segment is collinear only when its point lies on the other segment's
+ * supporting line. Any two point segments are considered collinear.
+ */
 export function isCollinear(a1: Point, b1: Point, a2: Point, b2: Point): boolean {
   if (!isParallel(a1, b1, a2, b2)) return false;
 
-  const ux = b1.x - a1.x;
-  const uy = b1.y - a1.y;
-  const wx = a2.x - a1.x;
-  const wy = a2.y - a1.y;
-  const magnitude = Math.hypot(ux, uy) * Math.hypot(wx, wy);
+  let ux = b1.x - a1.x;
+  let uy = b1.y - a1.y;
+  let wx = a2.x - a1.x;
+  let wy = a2.y - a1.y;
+  let length = Math.hypot(ux, uy);
+
+  // A point segment has no direction of its own. Use the other segment's
+  // supporting line so the result does not depend on argument order.
+  if (length === 0) {
+    ux = b2.x - a2.x;
+    uy = b2.y - a2.y;
+    wx = a1.x - a2.x;
+    wy = a1.y - a2.y;
+    length = Math.hypot(ux, uy);
+  }
+
+  if (length === 0) return true;
+
+  const magnitude = length * Math.hypot(wx, wy);
 
   return Math.abs(ux * wy - uy * wx) <= EPS * magnitude;
 }
